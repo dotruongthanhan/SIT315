@@ -1,0 +1,49 @@
+// C++ code
+//
+
+const int MOTION=2;		//Motion Sensor digital pin
+const int LED=4;		//External led digital pin
+const int Moist=A0;		//Soil moisture analog pin
+const int liquid=600;	//Condition for soil moisture interrupt
+
+volatile int builtInState=0;	//State of built in LED light
+
+void setup()
+{
+  //Setup inputs and outputs
+  pinMode(A0, INPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(MOTION, INPUT);
+  pinMode(LED, OUTPUT);
+  
+  //Setup interrupt for motion sensor
+  attachInterrupt(digitalPinToInterrupt(MOTION), changeStateBuiltIn, CHANGE);
+  
+  Serial.begin(9600);	//Set baud rate
+}
+
+void loop()
+{
+  //Soil moisture interrupt
+  //Cannot use "attachInterrupt" because of analog input
+  if (analogRead(Moist)>=liquid)
+  {
+    digitalWrite(LED, HIGH);
+    Serial.println("Liquid found");
+  }
+  else
+  {
+    digitalWrite(LED, LOW);
+  }
+  delay(500);
+}
+
+void changeStateBuiltIn()	//Handle interrupt function
+{
+  builtInState = !builtInState;
+  digitalWrite(LED_BUILTIN, builtInState);
+  Serial.print("Input: ");
+  Serial.println(digitalRead(MOTION));
+  Serial.print("Output: ");
+  Serial.println(digitalRead(LED_BUILTIN));
+}
