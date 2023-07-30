@@ -1,0 +1,35 @@
+// C++ code
+//
+volatile int sensorState=0;
+
+void setup()
+{
+  //Setup INPUT, OUTPUT
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(2, INPUT);
+  
+  //Setup Interrupt
+  attachInterrupt(digitalPinToInterrupt(2), changeLedState, CHANGE);
+  
+  //Setup data reading speed
+  Serial.begin(9600);
+}
+
+void loop()
+{ 
+  //No loop
+}
+
+void changeLedState()
+{
+  // Change Led State
+  sensorState=digitalRead(2);
+  digitalWrite(LED_BUILTIN, sensorState);
+  
+  // Print input and output
+  Serial.print("Input value: ");
+  Serial.println(sensorState);
+  Serial.print("Output value: ");
+  Serial.println(digitalRead(LED_BUILTIN));
+  Serial.println("");
+}
