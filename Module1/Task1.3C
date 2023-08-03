@@ -2,48 +2,45 @@
 //
 
 const int MOTION=2;		//Motion Sensor digital pin
+const int TILT=3;		//Tilt Sensor digital pin
 const int LED=4;		//External led digital pin
-const int Moist=A0;		//Soil moisture analog pin
-const int liquid=600;	//Condition for soil moisture interrupt
-
-volatile int builtInState=0;	//State of built in LED light
 
 void setup()
 {
   //Setup inputs and outputs
-  pinMode(A0, INPUT);
+  pinMode(TILT, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(MOTION, INPUT);
   pinMode(LED, OUTPUT);
   
   //Setup interrupt for motion sensor
   attachInterrupt(digitalPinToInterrupt(MOTION), changeStateBuiltIn, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(TILT), changeStateLed, CHANGE);
   
   Serial.begin(9600);	//Set baud rate
 }
 
 void loop()
 {
-  //Soil moisture interrupt
-  //Cannot use "attachInterrupt" because of analog input
-  if (analogRead(Moist)>=liquid)
-  {
-    digitalWrite(LED, HIGH);
-    Serial.println("Liquid found");
-  }
-  else
-  {
-    digitalWrite(LED, LOW);
-  }
-  delay(500);
+  //Empty loop
 }
 
-void changeStateBuiltIn()	//Handle interrupt function
+void changeStateBuiltIn()	//Handle inbuilt LED changes
 {
-  builtInState = !builtInState;
-  digitalWrite(LED_BUILTIN, builtInState);
-  Serial.print("Input: ");
+  digitalWrite(LED_BUILTIN, digitalRead(MOTION));
+  Serial.print("Input (Motion sensor): ");
   Serial.println(digitalRead(MOTION));
-  Serial.print("Output: ");
+  Serial.print("Output (Inbuilt LED): ");
   Serial.println(digitalRead(LED_BUILTIN));
+  Serial.println("");
+}
+
+void changeStateLed()		//Handle external LED changes
+{
+  digitalWrite(LED, digitalRead(TILT));
+  Serial.print("Input (Tilt sensor): ");
+  Serial.println(digitalRead(TILT));
+  Serial.print("Output (External LED): ");
+  Serial.println(digitalRead(LED));
+  Serial.println("");
 }
