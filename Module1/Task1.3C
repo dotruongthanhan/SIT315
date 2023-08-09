@@ -4,6 +4,7 @@
 const int MOTION=2;		//Motion Sensor digital pin
 const int TILT=3;		//Tilt Sensor digital pin
 const int LED=4;		//External led digital pin
+volatile int LedState=0;
 
 void setup()
 {
@@ -37,7 +38,8 @@ void changeStateBuiltIn()	//Handle inbuilt LED changes
 
 void changeStateLed()		//Handle external LED changes
 {
-  digitalWrite(LED, digitalRead(TILT));
+  LedState = !LedState;
+  digitalWrite(LED, LedState);
   Serial.print("Input (Tilt sensor): ");
   Serial.println(digitalRead(TILT));
   Serial.print("Output (External LED): ");
