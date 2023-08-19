@@ -1,0 +1,86 @@
+// C++ code
+//
+
+const int MOTION1=2;	//Motion Sensor 1
+const int TILT=A2;		//Tilt Sensor
+const int MOTION2=9;	//Motion Sensor 2
+const int LED=3;		  //External led 1
+const int LED2=4;		  //External led 2
+const uint16_t t1_comp=62500;
+volatile int LedState=0;
+
+void setup()
+{
+  //Setup inputs and outputs
+  pinMode(MOTION1, INPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+  
+  pinMode(TILT, INPUT);
+  pinMode(LED, OUTPUT);
+  
+  pinMode(MOTION2, INPUT);
+  pinMode(LED2, OUTPUT);
+  
+  //Setup interrupts for 2 motion sensors and 1 tilt sensor
+  PCICR	|= B00000111;
+  PCMSK0|= B00000010;
+  PCMSK1|= B00000100;
+  PCMSK2|= B00000100;
+  
+  
+  //Setup timer interrupt
+  TCCR1A = 0;
+  
+  TCCR1B |= (1 << CS12);
+  TCCR1B &= ~(1 << CS11);	//Prescaler = 256
+  TCCR1B &= ~(1 << CS10);
+  
+  TCNT1 = 0;				//Load value
+  OCR1A = t1_comp;			//Compare value
+  
+  TIMSK1 |= (1 << OCIE1A);
+  
+  //Allows global interrupts
+  sei();
+  
+  Serial.begin(9600);	//Set baud rate
+}
+
+void loop()
+{
+  //Empty loop
+}
+
+ISR(PCINT2_vect)	//Handle inbuilt LED changes
+{
+  digitalWrite(LED_BUILTIN, digitalRead(MOTION1));
+}
+
+ISR(PCINT1_vect)	//Handle external LED 1 changes
+{
+  LedState = !LedState;
+  digitalWrite(LED, LedState);
+}
+
+ISR(PCINT0_vect)	//Handle external LED 2 changes
+{
+  LedState=!LedState;
+  digitalWrite(LED2, LedState);
+}
+
+ISR(TIMER1_COMPA_vect)	//Timer interrupt function
+{
+  Serial.print("Input (Motion sensor 1): ");
+  Serial.print(digitalRead(MOTION1));
+  Serial.print("\tOutput (Inbuilt LED): ");
+  Serial.println(digitalRead(LED_BUILTIN));
+  Serial.print("Input (Tilt sensor): ");
+  Serial.print(digitalRead(TILT));
+  Serial.print("\t\tOutput (External LED 1): ");
+  Serial.println(digitalRead(LED));
+  Serial.print("Input (Motion sensor 2): ");
+  Serial.print(digitalRead(MOTION2));
+  Serial.print("\tOutput (External LED 2): ");
+  Serial.println(digitalRead(LED2));
+  Serial.println("");
+}
