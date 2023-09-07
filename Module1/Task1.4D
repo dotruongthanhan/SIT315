@@ -2,11 +2,11 @@
 //
 
 const int MOTION1=2;  //Motion Sensor 1
-const int TILT=A2;    //Tilt Sensor
+const int TILT=A2;   //Tilt Sensor
 const int MOTION2=9;	//Motion Sensor 2
 const int LEDtilt=3;  //External led 1
 const int LEDtimer=4;
-const int LEDpir=5;		//External led 2
+const int LEDpir=5;  //External led 2
 const uint16_t t1_comp=62500;
 
 volatile int TiltLed=0;
