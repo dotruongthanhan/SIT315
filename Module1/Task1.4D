@@ -4,10 +4,14 @@
 const int MOTION1=2;	//Motion Sensor 1
 const int TILT=A2;		//Tilt Sensor
 const int MOTION2=9;	//Motion Sensor 2
-const int LED=3;		  //External led 1
-const int LED2=4;		  //External led 2
+const int LEDtilt=3;	//External led 1
+const int LEDtimer=4;
+const int LEDpir=5;		//External led 2
 const uint16_t t1_comp=62500;
-volatile int LedState=0;
+
+volatile int TiltLed=0;
+volatile int TimerLed=0;
+volatile int PIRLed=0;
 
 void setup()
 {
@@ -16,10 +20,10 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   
   pinMode(TILT, INPUT);
-  pinMode(LED, OUTPUT);
+  pinMode(LEDtilt, OUTPUT);
   
   pinMode(MOTION2, INPUT);
-  pinMode(LED2, OUTPUT);
+  pinMode(LEDpir, OUTPUT);
   
   //Setup interrupts for 2 motion sensors and 1 tilt sensor
   PCICR	|= B00000111;
@@ -54,33 +58,34 @@ void loop()
 ISR(PCINT2_vect)	//Handle inbuilt LED changes
 {
   digitalWrite(LED_BUILTIN, digitalRead(MOTION1));
-}
-
-ISR(PCINT1_vect)	//Handle external LED 1 changes
-{
-  LedState = !LedState;
-  digitalWrite(LED, LedState);
-}
-
-ISR(PCINT0_vect)	//Handle external LED 2 changes
-{
-  LedState=!LedState;
-  digitalWrite(LED2, LedState);
-}
-
-ISR(TIMER1_COMPA_vect)	//Timer interrupt function
-{
   Serial.print("Input (Motion sensor 1): ");
   Serial.print(digitalRead(MOTION1));
   Serial.print("\tOutput (Inbuilt LED): ");
   Serial.println(digitalRead(LED_BUILTIN));
+}
+
+ISR(PCINT1_vect)	//Handle external LED 1 changes
+{
+  TiltLed = !TiltLed;
+  digitalWrite(LEDtilt, TiltLed);
   Serial.print("Input (Tilt sensor): ");
   Serial.print(digitalRead(TILT));
   Serial.print("\t\tOutput (External LED 1): ");
-  Serial.println(digitalRead(LED));
+  Serial.println(digitalRead(LEDtilt));
+}
+
+ISR(PCINT0_vect)	//Handle external LED 2 changes
+{
+  PIRLed=!PIRLed;
+  digitalWrite(LEDpir, PIRLed);
   Serial.print("Input (Motion sensor 2): ");
   Serial.print(digitalRead(MOTION2));
   Serial.print("\tOutput (External LED 2): ");
-  Serial.println(digitalRead(LED2));
-  Serial.println("");
+  Serial.println(digitalRead(LEDpir));
+}
+
+ISR(TIMER1_COMPA_vect)	//Timer interrupt function
+{
+  TimerLed = !TimerLed;
+  digitalWrite(LEDtimer, TimerLed);
 }
